@@ -1,6 +1,3 @@
-from sympy import Idx
-
-
 with open("input.txt") as f:
     steps = f.read().strip().split(",")
 
