@@ -1,4 +1,7 @@
-with open("test_case.txt") as f:
+from math import ceil
+
+
+with open("input.txt") as f:
     grid = f.read().splitlines()
 
 
@@ -30,79 +33,48 @@ for i in range(len(grid)):
 
 x, y = start
 visited = {start}
-queue = [start]
+vertices = [start]
+stack = [start]
 
-while queue:
-    x, y = queue.pop(0)
+while stack:
+    x, y = stack.pop()
     element = grid[x][y]
 
     # try to go up
     if (x - 1) >= 0 and (x - 1, y) not in visited and element in allowed_movements["up"] and "up" in allowed_arrivals[grid[x - 1][y]]:
-        queue.append((x - 1, y))
+        stack.append((x - 1, y))
         visited.add((x - 1, y))
+        vertices.append((x - 1, y))
 
     # try to go down
     if (x + 1) < len(grid) and (x + 1, y) not in visited and element in allowed_movements["down"] and "down" in allowed_arrivals[grid[x + 1][y]]:
-        queue.append((x + 1, y))
+        stack.append((x + 1, y))
         visited.add((x + 1, y))
+        vertices.append((x + 1, y))
 
     # try to go left    
     if (y - 1) >= 0 and (x, y - 1) not in visited and element in allowed_movements["left"] and "left" in allowed_arrivals[grid[x][y - 1]]:
-        queue.append((x, y - 1))
+        stack.append((x, y - 1))
         visited.add((x, y - 1))
+        vertices.append((x, y - 1))
 
     # try to go right
     if (y + 1) < len(grid[x]) and (x, y + 1) not in visited and element in allowed_movements["right"] and "right" in allowed_arrivals[grid[x][y + 1]]:
-        queue.append((x, y + 1))
+        stack.append((x, y + 1))
         visited.add((x, y + 1))
-
-for i in range(len(grid)):
-    for j in range(len(grid[0])):
-        if (i, j) in visited:
-            grid[i] = grid[i][:j] + "#" + grid[i][j + 1:]
-        else:
-            grid[i] = grid[i][:j] + "." + grid[i][j + 1:]
-
-print("\n".join("".join(row) for row in grid))
-
-insides0 = set()
-for i, row in enumerate(grid):
-
-    if "#" not in row:
-        continue
-
-    start = row.index("#")
-    for end in range(start + 1, len(row)):
-
-        # expand window
-        if row[end] == ".":
-            continue
-
-        if row[end] == "#":
-            for x in range(start + 1, end):
-                insides0.add((i, x))
-            start = end
-
-insides1 = set()
-for i, col in enumerate(zip(*grid)):
-
-    if "#" not in col:
-        continue
-
-    start = col.index("#")
-    for end in range(start + 1, len(col)):
-
-        # expand window
-        if col[end] == ".":
-            continue
-
-        if col[end] == "#":
-            for x in range(start + 1, end):
-                insides1.add((x, i))
-            start = end
-
-print(insides0)
-print(insides1)
-print(len(insides0 & insides1))
+        vertices.append((x, y + 1))
 
 
+# find area using shoelace formula
+area = 0
+vertices.append(vertices[0])
+for i in range(len(vertices) - 1):
+    area += vertices[i][0] * vertices[i + 1][1]
+    area -= vertices[i][1] * vertices[i + 1][0]
+area = 0.5 * abs(area)
+
+# find interior points using pick's theorem
+outer_points = len(vertices) - 1
+inner_points = area + 1 - (outer_points / 2)
+
+print(ceil(inner_points))
