@@ -47,7 +47,7 @@ for i in range(len(vertices) - 1):
 area = 0.5 * abs(area)
 
 # find interior points using pick's theorem
-outer_points = sum([distance for direction, distance in instructions])
+outer_points = sum([distance for _, distance in instructions])
 inner_points = area + 1 - (outer_points / 2)
 
 # total points = outer points + inner points
